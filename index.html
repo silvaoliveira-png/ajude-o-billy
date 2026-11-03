@@ -18,14 +18,73 @@
 <section class="section white"><div class="wrap"><div class="section-head"><span class="eyebrow">TRANSPARÊNCIA</span><h2>Confiança também é cuidado</h2><p>Quem ajuda merece saber como a campanha está avançando.</p></div><div class="story-grid"><div><h3>Compartilharemos atualizações</h3><p class="muted">Adicione nesta área atualizações verificáveis sobre o estado do Billy, os cuidados recebidos e o uso das contribuições. Sempre que possível, inclua notas, recibos ou comprovantes, preservando dados pessoais.</p></div><div><h3>Antes de doar</h3><p class="muted">Confirme que o link de pagamento pertence ao responsável pela campanha. A página não deve ser publicada com dados de pagamento fictícios ou sem autorização para arrecadar em nome de terceiros.</p></div></div></div></section>
 <section class="section"><div class="wrap faq"><div class="section-head"><span class="eyebrow">DÚVIDAS FREQUENTES</span><h2>Saiba como participar</h2></div><details><summary>Qual é o valor mínimo e máximo?</summary><p>O valor mínimo permitido nesta página é R$ 5,00 e o máximo é R$ 50,00 por contribuição.</p></details><details><summary>Como faço uma doação?</summary><p>Escolha um valor e toque em “Continuar para doação”. Depois que o responsável configurar o gateway de pagamento, você será encaminhado ao checkout oficial para concluir a contribuição.</p></details><details><summary>Posso ajudar sem doar?</summary><p>Sim. Compartilhe a campanha com amigos e familiares para que mais pessoas conheçam a história do Billy.</p></details><details><summary>Como saberei como o dinheiro foi usado?</summary><p>O responsável pela campanha deve publicar atualizações e comprovantes de despesas reais nesta página ou em um canal público de prestação de contas.</p></details></div></section>
 </main><footer class="footer"><div class="wrap footer-inner"><div><div class="brand"><span class="brand-icon">🐶</span><span>Ajude o Billy</span></div><p>Uma campanha solidária para apoiar os cuidados de Billy, encontrado abandonado às margens da BR-040, em Três Corações (MG).</p></div><div><strong>Uma ajuda muda o caminho.</strong><p>Se não puder contribuir, compartilhe esta página.</p><a href="#doar">Fazer uma doação ↑</a></div><div class="smallprint">© <span id="year"></span> Campanha Ajude o Billy. Publique somente informações verdadeiras e atualizadas.</div></div></footer>
-<script>
-// CONFIGURAÇÃO: cole aqui o link oficial do checkout criado no seu gateway de pagamento.
-// Para cobrar valores variáveis, use um checkout/API que aceite o valor com validação no servidor.
-// Não coloque chaves secretas do gateway neste arquivo público.
-const CHECKOUT_URL = "";
-const amountInput=document.getElementById('customAmount');const amountError=document.getElementById('amountError');const donateBtn=document.getElementById('donateBtn');const setupNotice=document.getElementById('setupNotice');
-function money(n){return n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});}function currentAmount(){return Number(String(amountInput.value).replace(',','.'));}
-function validate(){const n=currentAmount();const ok=Number.isFinite(n)&&n>=5&&n<=50;amountError.textContent=ok?'Valor selecionado: '+money(n):'Informe um valor entre R$ 5,00 e R$ 50,00.';amountError.style.color=ok?'':'#a12d2d';donateBtn.disabled=!ok;donateBtn.style.opacity=ok?'1':'.55';document.querySelectorAll('.amount').forEach(b=>b.classList.toggle('active',ok&&Math.abs(Number(b.dataset.value)-n)<.001));return ok;}
-document.querySelectorAll('.amount').forEach(b=>b.addEventListener('click',()=>{amountInput.value=Number(b.dataset.value).toFixed(2);validate();}));amountInput.addEventListener('input',validate);donateBtn.addEventListener('click',()=>{if(!validate())return;const n=currentAmount();if(!CHECKOUT_URL){setupNotice.textContent='O pagamento ainda está sendo configurado. Nenhuma doação será cobrada por esta página até a integração oficial ser concluída.';setupNotice.scrollIntoView({behavior:'smooth',block:'center'});return;}const url=new URL(CHECKOUT_URL);url.searchParams.set('amount',n.toFixed(2));url.searchParams.set('campaign','ajude-o-billy');window.location.href=url.toString();});document.getElementById('year').textContent=new Date().getFullYear();validate();
-// Para exibir fotos, substitua os espaços de imagem no HTML por <img src="fotos/billy-1.jpg" ...> e mantenha as imagens na pasta fotos.
+<script>const CHECKOUTS = {
+  5: "https://seguro-pago.xyz/c/off_01m6hra9bg8kc91bv9fh169j8k",
+  10: "https://seguro-pago.xyz/c/off_01m6hrrp8xdqqrqz9ns3kms0g6",
+  15: "https://seguro-pago.xyz/c/off_01m6hrxzcjf81r38zrd9v6ts4h",
+  20: "https://seguro-pago.xyz/c/off_01m6hs1e6733tf1bd1m544qkdj",
+  25: "https://seguro-pago.xyz/c/off_01m6hs3jdyk9eypmnxyj86y1tx",
+  50: "https://seguro-pago.xyz/c/off_01m6hs5hhng36gqntz21bfh7vm"
+};
+
+const amountInput = document.getElementById('customAmount');
+const amountError = document.getElementById('amountError');
+const donateBtn = document.getElementById('donateBtn');
+const setupNotice = document.getElementById('setupNotice');
+
+amountInput.readOnly = true;
+document.querySelector('label[for="customAmount"]').textContent = 'Valor escolhido';
+setupNotice.classList.add('hidden');
+
+function money(n) {
+  return n.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL'
+  });
+}
+
+function currentAmount() {
+  return Number(amountInput.value);
+}
+
+function validate() {
+  const n = currentAmount();
+  const ok = [5, 10, 15, 20, 25, 50].includes(n);
+
+  amountError.textContent = ok
+    ? 'Valor selecionado: ' + money(n)
+    : 'Escolha um valor disponível.';
+
+  donateBtn.disabled = !ok;
+
+  document.querySelectorAll('.amount').forEach(b => {
+    b.classList.toggle('active', ok && Number(b.dataset.value) === n);
+  });
+
+  return ok;
+}
+
+document.querySelectorAll('.amount').forEach(b => {
+  b.addEventListener('click', () => {
+    amountInput.value = Number(b.dataset.value).toFixed(2);
+    validate();
+  });
+});
+
+donateBtn.addEventListener('click', () => {
+  if (!validate()) return;
+
+  const link = CHECKOUTS[currentAmount()];
+
+  if (!link || link.startsWith('COLE_')) {
+    alert('Checkout ainda não configurado.');
+    return;
+  }
+
+  window.location.href = link;
+});
+
+document.getElementById('year').textContent = new Date().getFullYear();
+validate();
 </script></body></html>
+  
