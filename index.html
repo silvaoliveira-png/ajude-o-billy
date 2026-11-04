@@ -86,5 +86,26 @@ donateBtn.addEventListener('click', () => {
 
 document.getElementById('year').textContent = new Date().getFullYear();
 validate();
+  document.querySelectorAll('img').forEach(img => {
+  const placeholder = img.nextElementSibling;
+
+  if (!placeholder) return;
+
+  const hidePlaceholder = () => {
+    placeholder.style.display = 'none';
+    img.style.display = 'block';
+  };
+
+  const showPlaceholder = () => {
+    placeholder.style.display = 'flex';
+  };
+
+  img.addEventListener('load', hidePlaceholder);
+  img.addEventListener('error', showPlaceholder);
+
+  if (img.complete && img.naturalWidth > 0) {
+    hidePlaceholder();
+  }
+});
 </script></body></html>
   
